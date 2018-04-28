@@ -4,6 +4,7 @@ import java.util.Set;
 
 import sets.CompactSet;
 import sets.IntCompactSet;
+import sets.PagedIntSet;
 
 /**
  * The performance test
@@ -13,7 +14,7 @@ import sets.IntCompactSet;
 public class TestIntegerSet {
 
     public static Class<? extends Set<Integer>>[] classes =
-                    new Class[] { IntCompactSet.class, CompactSet.class, HashSet.class, LinkedHashSet.class };
+                    new Class[] { PagedIntSet.class, IntCompactSet.class, CompactSet.class, HashSet.class, LinkedHashSet.class };
 
     public static void main( String[] args ) throws Exception {
         // heat up of the JVM
@@ -142,11 +143,16 @@ public class TestIntegerSet {
      * @return the minimum used memory
      */
     static long memoryUsage() throws Exception {
+        // trigger the GC for a define count 
+        System.gc();
+        Thread.sleep( 1 );
+        System.gc();
+        Thread.sleep( 1 );
+        System.gc();
+        Thread.sleep( 5 );
         long memory = Long.MAX_VALUE;
         int count = 0;
         do {
-            System.gc();
-            System.runFinalization();
             Runtime runtime = Runtime.getRuntime();
             long used = runtime.totalMemory() - runtime.freeMemory();
             if( used >= memory ) {
@@ -158,7 +164,7 @@ public class TestIntegerSet {
                 count = 2;
                 memory = used;
             }
-            Thread.sleep( 1 ); // wait on the result of gc
+            Thread.sleep( 5 ); // wait on the result of gc
         } while( true );
     }
 }
